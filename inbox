@@ -19,15 +19,18 @@ foreach ( qw( smtp_server omnifocus_email sender_email ) ) {
     }
 }
 
-my $subject = join q{ }, @ARGV;
+print "Task:\n";
+my $subject = <STDIN>;
+chomp $subject;
+
+print "\nNotes:\n";
+
 my $body;
-
-print "Will inbox: {$subject}\n";
-print "Enter note text below. Send an EOF when done.\n\n";
-
 while ( <STDIN> ) {
   $body .= $_;
 }
+
+print "\nSending to OmniFocus...\n";
 
 my $smtp = Net::SMTP->new( $config{smtp_server} );
 unless ( $smtp ) {
@@ -38,8 +41,8 @@ $smtp->mail( $config{sender_email} );
 
 if ( $smtp->to( $config{omnifocus_email} ) ) {
   $smtp->data;
-  $smtp->datasend( "From: $config{sender_email}\n" );  
-  $smtp->datasend( "To: $config{omnifocus_email}\n" );  
+  $smtp->datasend( "From: $config{sender_email}\n" );
+  $smtp->datasend( "To: $config{omnifocus_email}\n" );
   $smtp->datasend( "Subject: $subject\n\n" );
   $smtp->datasend( "$body\n" ) if $body;
   $smtp->dataend;
