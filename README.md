@@ -40,6 +40,12 @@ Then type the task's notes when prompted, ending it with an EOT (i.e. Ctrl-D). I
 
 If it didn't give you an error message, yeah, probably. Launch OmniFocus and re-sync; the task should show up in your inbox.
 
+## Bugs
+
+This doesn't work with SMTP servers requiring authentication.
+
+This program is, in fact, just a very simple and rather naïve email-sending script, and one which happens to only ever send mail to a single address. I could have used, like, `mailx` instead. But then I'd have to figure that out, and then I'd have to write a wrapper script around it because it's not like I'm going to remember my OmniFocus inbox email address ever. So, I just made this instead.
+
 ## Author
 
 Jason McIntosh (jmac@jmac.org)
