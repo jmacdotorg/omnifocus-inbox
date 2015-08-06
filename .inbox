@@ -1,0 +1,5 @@
+# Customize this file, and move it into your home directory.
+
+smtp_server	smtp.example.com
+omnifocus_email your.sync.address@sync.omnigroup.com
+sender_email 	you@example.com

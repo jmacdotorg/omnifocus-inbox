@@ -1,0 +1,53 @@
+#!/usr/bin/env perl
+
+use warnings;
+use strict;
+
+use Config::General;
+use Net::SMTP;
+
+my $config_path = "$ENV{HOME}/.inbox";
+unless ( -r $config_path ) {
+    die "ERROR: Can't read config file at $config_path:$!\n";
+}
+
+my %config = Config::General->new( $config_path )->getall;
+
+foreach ( qw( smtp_server omnifocus_email sender_email ) ) {
+    unless ( $config{ $_ } ) {
+	die "ERROR: Config file doesn't define '$_'.\n";
+    }
+}
+
+my $subject = join q{ }, @ARGV;
+my $body;
+
+print "Will inbox: {$subject}\n";
+print "Enter note text below. Send an EOF when done.\n\n";
+
+while ( <STDIN> ) {
+  $body .= $_;
+}
+
+my $smtp = Net::SMTP->new( $config{smtp_server} );
+unless ( $smtp ) {
+  die "ERROR: $@\n";
+}
+
+$smtp->mail( $config{sender_email} );
+
+if ( $smtp->to( $config{omnifocus_email} ) ) {
+  $smtp->data;
+  $smtp->datasend( "From: $config{sender_email}\n" );  
+  $smtp->datasend( "To: $config{omnifocus_email}\n" );  
+  $smtp->datasend( "Subject: $subject\n\n" );
+  $smtp->datasend( "$body\n" ) if $body;
+  $smtp->dataend;
+}
+else {
+  die "ERROR: " . $smtp->message . "\n";
+}
+
+$smtp->quit;
+
+print "Done.\n";
